@@ -7,27 +7,40 @@ export class ReactShoppingPage {
     readonly addToCartButtons: Locator;
     readonly closeCheckoutButton: Locator;
     readonly cartAmount: Locator;
+    readonly checkOutButton: Locator;
     readonly sizeFilter: (size: string) => Locator;
 
 
     constructor(page: Page) {
-        let amount: number = 0;
         this.page = page;
         this.addToCartButtons = page.getByRole('button', { name: 'Add to cart' });
         this.closeCheckoutButton = page.getByRole('button', { name: 'X' });
+        this.checkOutButton = page.getByRole('button', { name: 'Checkout' });
         this.cartAmount = page.locator('#root > div > div.sc-1h98xa9-1.fMOJZp > button > div > div');
-        this.sizeFilter = (size: string) => page.getByText(`${size}, { exact: true }`);
-        //page.getByText('S', { exact: true });
-        page.goto(baseURL);
+        this.sizeFilter = (size: string) => page.getByText(`${size}`, { exact: true });
+
+    };
+
+    async navigateToEshop() {
+        await this.page.goto(baseURL);
+        await this.page.waitForTimeout(1000);
+    };
+
+    async clickCheckoutButton() {
+        await this.checkOutButton.waitFor({ state: 'visible' });
+        await this.checkOutButton.click();
     };
 
     async clickAddToCartButton(index: number) {
+        await this.page.waitForLoadState('domcontentloaded');
+        await this.addToCartButtons.nth(index).waitFor({ state: 'visible' });
         await this.addToCartButtons.nth(index).click();
     };
 
     async clickCloseCheckoutButton() {
-        await this.page.waitForTimeout(500);
+        await this.closeCheckoutButton.waitFor({ state: 'visible' });
         await this.closeCheckoutButton.click();
+
     };
 
     async getItemsAmount() {
