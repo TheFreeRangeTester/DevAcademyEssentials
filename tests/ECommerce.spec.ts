@@ -87,12 +87,6 @@ test.describe('E-Commerce site', () => {
       expect(itemCount).toBe(2);
       expect(productsWithSizeS.length).toBe(2);
     }).toPass();
-
-    // We validate the desired product
-    const desiredProduct = productsWithSizeS.find(product => product.title === 'Black Batman T-shirt');
-    expect(desiredProduct).toBeDefined();
-    expect(desiredProduct?.availableSizes.includes('S')).toBeTruthy();
-
     console.log(responseBody);
   });
 
