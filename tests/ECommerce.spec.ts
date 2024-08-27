@@ -1,25 +1,27 @@
 import { test, expect } from '@playwright/test';
 import { ReactShoppingPage } from '../tests/Pages/ReactShoppingPage';
 
-test.describe('E-Commerce site', () => {
 
+test.describe('E-Commerce site', () => {
+  let shoppingPage;
   const baseURL = 'https://react-shopping-cart-67954.firebaseapp.com';
 
   test.beforeEach(async ({ page }) => {
-    await page.goto("https://react-shopping-cart-67954.firebaseapp.com/");
-  })
+    shoppingPage = new ReactShoppingPage(page);
+  });
+
+  /*  beforeAll(() => {
+     shoppingPage = new ReactShoppingPage(page);
+   }); */
 
 
 
   test('Adding 5 items to the Cart', async ({ page }) => {
     await page.waitForSelector('text=Add to cart', { state: 'visible' });
-    let itemsList = await page.$$('text=Add to cart');
-    console.log(itemsList.length);
-    for (let i = 0; i < 5; i++) {
-      await itemsList[i].click();
-      await page.getByRole('button', { name: 'X' }).click();
-    };
+    await shoppingPage.addMultipleItemsToCart(5);
+    let cartAmount = await shoppingPage.fetchCartAmount();
 
+    expect(cartAmount).toBe('5');
   });
 
   test('The checkout works as expected', async ({ page }) => {
@@ -30,9 +32,9 @@ test.describe('E-Commerce site', () => {
 
   });
 
-
   test('There are two shirt with size XS', async ({ page }) => {
-    await page.getByText('S', { exact: true }).click();
+    await page.waitForTimeout(1000);
+    await shoppingPage.clickFilterBySize('XXL');
     await page.waitForSelector('text=Add to cart', { state: 'visible' });
     let itemsList = page.getByRole('button', { name: 'Add to cart' });
     const itemCount = await itemsList.count();
@@ -66,14 +68,6 @@ test.describe('E-Commerce site', () => {
     console.log(await responseBody);
   });
 
-  test('POM - Adding 5 items to the cart', async ({ page }) => {
-    const shoppingPage = new ReactShoppingPage(page);
-    await page.waitForSelector('text=Add to cart', { state: 'visible' });
-    await shoppingPage.addMultipleItemsToCart(5);
-    let cartAmount = await shoppingPage.fetchCartAmount();
-    expect(cartAmount).toBe('5');
-  });
-
   test('should fetch products.json and validate its structure and content', async ({ request }) => {
     const response = await request.get('https://react-shopping-cart-67954.firebaseio.com/products.json', {
       headers: {
@@ -98,4 +92,31 @@ test.describe('E-Commerce site', () => {
     console.log(await responseBody);
     expect(responseBody).toBeInstanceOf(Object);
   });
+
+  test(`VONZI - Complete the purchase`, async ({ page }) => {
+    await page.goto(baseURL);
+    await expect(page.getByRole(`heading`, { name: "Sizes:" })).toBeVisible();
+    await page.locator(`.checkmark`).getByText('S', { exact: true }).click();
+    await page.getByRole(`button`, { name: "Add to cart" }).first().click();
+    await expect(page.getByText(`Cart`, { exact: true })).toBeVisible();
+    const cartTotalPrice = await page.locator(`.sc-1h98xa9-9.jzywDV`).textContent();
+
+    // Clicking checkout button and getting alert tests are behaving different in Playwright UI window tests vs headless mode
+    // await page.getByRole(`button`, {name: "Checkout" }).click({ force: true }); // doesn’t go to event
+
+    // below passes in npx playwright test --ui
+    const checkoutButton = page.locator(`.sc-1h98xa9-11.gnXVNU`);
+    checkoutButton.dispatchEvent(`click`); // also works in Playwright UI tests but not in extention tests
+    checkoutButton.evaluate((node: HTMLElement) => { node.click() }) // also works in Playwright UI tests but not in extension tests
+    checkoutButton.evaluate((element: HTMLElement) => element.click()); //also works in Playwright UI tests but not in extension tests
+
+    page.on(`dialog`, async dialog => {
+      expect(dialog.message()).toContain(`Checkout - Subtotal: ${cartTotalPrice}`);
+      console.log(dialog.message());
+      await dialog.dismiss();
+    });
+  });
+
+
+
 });

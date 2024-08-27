@@ -7,14 +7,17 @@ export class ReactShoppingPage {
     readonly addToCartButtons: Locator;
     readonly closeCheckoutButton: Locator;
     readonly cartAmount: Locator;
+    readonly sizeFilter: (size: string) => Locator;
 
 
     constructor(page: Page) {
         let amount: number = 0;
         this.page = page;
-        this.addToCartButtons = page.locator('text=Add to cart');
+        this.addToCartButtons = page.getByRole('button', { name: 'Add to cart' });
         this.closeCheckoutButton = page.getByRole('button', { name: 'X' });
         this.cartAmount = page.locator('#root > div > div.sc-1h98xa9-1.fMOJZp > button > div > div');
+        this.sizeFilter = (size: string) => page.getByText(`${size}, { exact: true }`);
+        //page.getByText('S', { exact: true });
         page.goto(baseURL);
     };
 
@@ -39,6 +42,11 @@ export class ReactShoppingPage {
             await this.clickAddToCartButton(i);
             await this.clickCloseCheckoutButton();
         }
+    };
+
+    async clickFilterBySize(size: string) {
+        await this.page.waitForSelector(`text=${size}`, { state: 'visible' });
+        await this.sizeFilter(size).click();
     };
 
     async fetchCartAmount() {
