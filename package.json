@@ -2,7 +2,10 @@
   "name": "devacademyessentials",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "env:test": "NODE_ENV=testing npx playwright test",
+    "env:dev": "NODE_ENV=development npx playwright test"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -10,5 +13,8 @@
   "devDependencies": {
     "@playwright/test": "^1.46.1",
     "@types/node": "^22.5.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
   }
 }

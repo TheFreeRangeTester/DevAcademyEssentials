@@ -1,6 +1,6 @@
 import { Locator, Page } from "@playwright/test";
 
-const baseURL = 'https://react-shopping-cart-67954.firebaseapp.com';
+const baseURL = process.env.BASE_URL;
 
 export class ReactShoppingPage {
     readonly page: Page;
@@ -22,6 +22,10 @@ export class ReactShoppingPage {
     };
 
     async navigateToEshop() {
+        if (!baseURL) {
+            console.error("BASE_URL is not defined.");
+            return; // Opcionalmente, manejar este caso de error de manera más adecuada.
+        }
         await this.page.goto(baseURL);
         await this.page.waitForTimeout(1000);
     };

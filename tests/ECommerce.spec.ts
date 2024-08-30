@@ -8,13 +8,14 @@ test.describe('E-Commerce site', () => {
   test.beforeEach(async ({ page }) => {
     shoppingPage = new ReactShoppingPage(page);
     await shoppingPage.navigateToEshop();
+    console.log('Using ' + process.env.USERNAME + ' as username');
   });
 
   /* test.beforeAll(({ page }) => {
     shoppingPage = new ReactShoppingPage(page);
   }); */
 
-  test('Adding 5 items to the Cart', async ({ page }) => {
+  test.only('Adding 5 items to the Cart', async ({ page }) => {
     await test.step('Given I add multiple items to the cart', async () => {
       await shoppingPage.addMultipleItemsToCart(5);
     })
