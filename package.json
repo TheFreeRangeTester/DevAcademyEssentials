@@ -1,9 +1,8 @@
 {
   "name": "devacademyessentials",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
-    "env:test": "NODE_ENV=testing npx playwright test --project=chromium",
+    "env:test": "NODE_ENV=testing npx playwright test --project=chromium --reporter=html",
     "env:dev": "NODE_ENV=development npx playwright test"
   },
   "keywords": [],

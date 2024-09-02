@@ -3,27 +3,22 @@ name: Run Test Environment
 on: [push, pull_request]
 
 jobs:
-  test:
+  tests_e2e:
+    name: Run end-to-end tests
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: "16"
-
+          node-version: "16" # Asegúrate de especificar la versión de Node.js que tu proyecto requiere
       - name: Install dependencies
-        run: npm install
-
-      - name: Run env:test script
+        run: npm ci
+      - name: Install playwright browsers
+        run: npx playwright install --with-deps
+      - name: Run tests
         run: npm run env:test
-
-      - name: Archive Playwright test results
+      - name: Upload HTML report
         uses: actions/upload-artifact@v3
-        if: always()
         with:
-          name: playwright-test-results
-          path: |
-            **/test-results/**
-          if-no-files-found: warn
+          name: playwright-report
+          path: playwright-report/
