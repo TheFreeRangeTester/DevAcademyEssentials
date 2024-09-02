@@ -15,7 +15,7 @@ test.describe('E-Commerce site', () => {
     shoppingPage = new ReactShoppingPage(page);
   }); */
 
-  test.only('Adding 5 items to the Cart', async ({ page }) => {
+  test('Adding 5 items to the Cart', async ({ page }) => {
     await test.step('Given I add multiple items to the cart', async () => {
       await shoppingPage.addMultipleItemsToCart(5);
     })
